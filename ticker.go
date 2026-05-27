@@ -14,9 +14,7 @@ type Ticker interface {
 
 type realTicker struct{ *time.Ticker }
 
-func (r realTicker) Chan() <-chan time.Time {
-	return r.C
-}
+func (r realTicker) Chan() <-chan time.Time { _ = "STUB: not implemented"; return nil }
 
 type fakeTicker struct {
 	// The channel associated with the firer, used to send expiration times.
@@ -36,36 +34,22 @@ type fakeTicker struct {
 }
 
 func newFakeTicker(fc *FakeClock, d time.Duration) *fakeTicker {
-	var ft *fakeTicker
-	ft = &fakeTicker{
-		c: make(chan time.Time, 1),
-		d: d,
-		reset: func(d time.Duration) {
-			fc.l.Lock()
-			defer fc.l.Unlock()
-			ft.d = d
-			fc.setExpirer(ft, d)
-		},
-		stop: func() { fc.stop(ft) },
-	}
-	return ft
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (f *fakeTicker) Chan() <-chan time.Time { return f.c }
+func (f *fakeTicker) Chan() <-chan time.Time { _ = "STUB: not implemented"; return nil }
 
-func (f *fakeTicker) Reset(d time.Duration) { f.reset(d) }
+func (f *fakeTicker) Reset(d time.Duration) { _ = "STUB: not implemented"; return }
 
-func (f *fakeTicker) Stop() { f.stop() }
+func (f *fakeTicker) Stop() { _ = "STUB: not implemented"; return }
 
 func (f *fakeTicker) expire(now time.Time) *time.Duration {
+	_ = "STUB: not implemented"
 	// Never block on expiration.
-	select {
-	case f.c <- now:
-	default:
-	}
-	return &f.d
+	return nil
 }
 
-func (f *fakeTicker) expiration() time.Time { return f.exp }
+func (f *fakeTicker) expiration() time.Time { _ = "STUB: not implemented"; return *new(time.Time) }
 
-func (f *fakeTicker) setExpiration(t time.Time) { f.exp = t }
+func (f *fakeTicker) setExpiration(t time.Time) { _ = "STUB: not implemented"; return }

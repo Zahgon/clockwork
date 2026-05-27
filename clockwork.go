@@ -3,8 +3,6 @@ package clockwork
 
 import (
 	"context"
-	"errors"
-	"slices"
 	"sync"
 	"time"
 )
@@ -24,42 +22,36 @@ type Clock interface {
 
 // NewRealClock returns a Clock which simply delegates calls to the actual time
 // package; it should be used by packages in production.
-func NewRealClock() Clock {
-	return &realClock{}
-}
+func NewRealClock() Clock { _ = "STUB: not implemented"; return *new(Clock) }
 
 type realClock struct{}
 
-func (rc *realClock) After(d time.Duration) <-chan time.Time {
-	return time.After(d)
-}
+func (rc *realClock) After(d time.Duration) <-chan time.Time { _ = "STUB: not implemented"; return nil }
 
-func (rc *realClock) Sleep(d time.Duration) {
-	time.Sleep(d)
-}
+func (rc *realClock) Sleep(d time.Duration) { _ = "STUB: not implemented"; return }
 
-func (rc *realClock) Now() time.Time {
-	return time.Now()
-}
+func (rc *realClock) Now() time.Time { _ = "STUB: not implemented"; return *new(time.Time) }
 
 func (rc *realClock) Since(t time.Time) time.Duration {
-	return rc.Now().Sub(t)
+	_ = "STUB: not implemented"
+	return *new(time.Duration)
 }
 
 func (rc *realClock) Until(t time.Time) time.Duration {
-	return t.Sub(rc.Now())
+	_ = "STUB: not implemented"
+	return *new(time.Duration)
 }
 
 func (rc *realClock) NewTicker(d time.Duration) Ticker {
-	return realTicker{time.NewTicker(d)}
+	_ = "STUB: not implemented"
+	return *new(Ticker)
 }
 
-func (rc *realClock) NewTimer(d time.Duration) Timer {
-	return realTimer{time.NewTimer(d)}
-}
+func (rc *realClock) NewTimer(d time.Duration) Timer { _ = "STUB: not implemented"; return *new(Timer) }
 
 func (rc *realClock) AfterFunc(d time.Duration, f func()) Timer {
-	return realTimer{time.AfterFunc(d, f)}
+	_ = "STUB: not implemented"
+	return *new(Timer)
 }
 
 // FakeClock provides an interface for a clock which can be manually advanced
@@ -83,16 +75,10 @@ type FakeClock struct {
 // FakeClock will be the current system time.
 //
 // Tests that require a deterministic time must use NewFakeClockAt.
-func NewFakeClock() *FakeClock {
-	return NewFakeClockAt(time.Now())
-}
+func NewFakeClock() *FakeClock { _ = "STUB: not implemented"; return nil }
 
 // NewFakeClockAt returns a FakeClock initialised at the given time.Time.
-func NewFakeClockAt(t time.Time) *FakeClock {
-	return &FakeClock{
-		time: t,
-	}
-}
+func NewFakeClockAt(t time.Time) *FakeClock { _ = "STUB: not implemented"; return nil }
 
 // blocker is a caller of BlockUntil.
 type blocker struct {
@@ -115,74 +101,64 @@ type expirer interface {
 
 // After mimics [time.After]; it waits for the given duration to elapse on the
 // fakeClock, then sends the current time on the returned channel.
-func (fc *FakeClock) After(d time.Duration) <-chan time.Time {
-	return fc.NewTimer(d).Chan()
-}
+func (fc *FakeClock) After(d time.Duration) <-chan time.Time { _ = "STUB: not implemented"; return nil }
 
 // Sleep blocks until the given duration has passed on the fakeClock.
 func (fc *FakeClock) Sleep(d time.Duration) {
-	<-fc.After(d)
+	_ = "STUB: not implemented"
+
+	// Now returns the current time of the fakeClock
+	return
 }
 
-// Now returns the current time of the fakeClock
-func (fc *FakeClock) Now() time.Time {
-	fc.l.RLock()
-	defer fc.l.RUnlock()
-	return fc.time
-}
+func (fc *FakeClock) Now() time.Time { _ = "STUB: not implemented"; return *new(time.Time) }
 
 // Since returns the duration that has passed since the given time on the
 // fakeClock.
 func (fc *FakeClock) Since(t time.Time) time.Duration {
-	return fc.Now().Sub(t)
+	_ = "STUB: not implemented"
+	return *
+
+	// Until returns the duration that has to pass from the given time on the fakeClock
+	// to reach the given time.
+	new(time.Duration)
 }
 
-// Until returns the duration that has to pass from the given time on the fakeClock
-// to reach the given time.
 func (fc *FakeClock) Until(t time.Time) time.Duration {
-	return t.Sub(fc.Now())
+	_ = "STUB: not implemented"
+	return *
+
+	// NewTicker returns a Ticker that will expire only after calls to
+	// FakeClock.Advance() have moved the clock past the given duration.
+	//
+	// The duration d must be greater than zero; if not, NewTicker will panic.
+	new(time.Duration)
 }
 
-// NewTicker returns a Ticker that will expire only after calls to
-// FakeClock.Advance() have moved the clock past the given duration.
-//
-// The duration d must be greater than zero; if not, NewTicker will panic.
 func (fc *FakeClock) NewTicker(d time.Duration) Ticker {
+	_ = "STUB: not implemented"
 	// Maintain parity with
 	// https://cs.opensource.google/go/go/+/refs/tags/go1.20.3:src/time/tick.go;l=23-25
-	if d <= 0 {
-		panic(errors.New("non-positive interval for NewTicker"))
-	}
-	ft := newFakeTicker(fc, d)
-	fc.l.Lock()
-	defer fc.l.Unlock()
-	fc.setExpirer(ft, d)
-	return ft
+	return *new(Ticker)
 }
 
 // NewTimer returns a Timer that will fire only after calls to
 // fakeClock.Advance() have moved the clock past the given duration.
-func (fc *FakeClock) NewTimer(d time.Duration) Timer {
-	t, _ := fc.newTimer(d, nil)
-	return t
-}
+func (fc *FakeClock) NewTimer(d time.Duration) Timer { _ = "STUB: not implemented"; return *new(Timer) }
 
 // AfterFunc mimics [time.AfterFunc]; it returns a Timer that will invoke the
 // given function only after calls to fakeClock.Advance() have moved the clock
 // past the given duration.
 func (fc *FakeClock) AfterFunc(d time.Duration, f func()) Timer {
-	t, _ := fc.newTimer(d, f)
-	return t
+	_ = "STUB: not implemented"
+	return *new(Timer)
 }
 
 // newTimer returns a new timer using an optional afterFunc and the time that
 // timer expires.
 func (fc *FakeClock) newTimer(d time.Duration, afterfunc func()) (*fakeTimer, time.Time) {
-	ft := newFakeTimer(fc, afterfunc)
-	fc.l.Lock()
-	defer fc.l.Unlock()
-	fc.setExpirer(ft, d)
-	return ft, ft.expiration()
+	_ = "STUB: not implemented"
+	return nil, *new(time.Time)
 }
 
 // newTimerAtTime is like newTimer, but uses a time instead of a duration.
@@ -190,38 +166,23 @@ func (fc *FakeClock) newTimer(d time.Duration, afterfunc func()) (*fakeTimer, ti
 // It is used to ensure FakeClock's lock is held constant through calling
 // fc.After(t.Sub(fc.Now())). It should not be exposed externally.
 func (fc *FakeClock) newTimerAtTime(t time.Time, afterfunc func()) *fakeTimer {
-	ft := newFakeTimer(fc, afterfunc)
-	fc.l.Lock()
-	defer fc.l.Unlock()
-	fc.setExpirer(ft, t.Sub(fc.time))
-	return ft
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Advance advances fakeClock to a new point in time, ensuring waiters and
 // blockers are notified appropriately before returning.
-func (fc *FakeClock) Advance(d time.Duration) {
-	fc.l.Lock()
-	defer fc.l.Unlock()
-	end := fc.time.Add(d)
-	// Expire the earliest waiter until the earliest waiter's expiration is after
-	// end.
-	//
-	// We don't iterate because the callback of the waiter might register a new
-	// waiter, so the list of waiters might change as we execute this.
-	for len(fc.waiters) > 0 && !end.Before(fc.waiters[0].expiration()) {
-		w := fc.waiters[0]
-		fc.waiters = fc.waiters[1:]
+func (fc *FakeClock) Advance(d time.Duration) { _ = "STUB: not implemented"; return }
 
-		// Use the waiter's expiration as the current time for this expiration.
-		now := w.expiration()
-		fc.time = now
-		if d := w.expire(now); d != nil {
-			// Set the new expiration if needed.
-			fc.setExpirer(w, *d)
-		}
-	}
-	fc.time = end
-}
+// Expire the earliest waiter until the earliest waiter's expiration is after
+// end.
+//
+// We don't iterate because the callback of the waiter might register a new
+// waiter, so the list of waiters might change as we execute this.
+
+// Use the waiter's expiration as the current time for this expiration.
+
+// Set the new expiration if needed.
 
 // BlockUntil blocks until the FakeClock has the given number of waiters.
 //
@@ -229,91 +190,42 @@ func (fc *FakeClock) Advance(d time.Duration) {
 // prevent deadlock.
 //
 // Deprecated: New code should prefer BlockUntilContext.
-func (fc *FakeClock) BlockUntil(n int) {
-	fc.BlockUntilContext(context.TODO(), n)
-}
+func (fc *FakeClock) BlockUntil(n int) { _ = "STUB: not implemented"; return }
 
 // BlockUntilContext blocks until the fakeClock has the given number of waiters
 // or the context is cancelled.
 func (fc *FakeClock) BlockUntilContext(ctx context.Context, n int) error {
-	b := fc.newBlocker(n)
-	if b == nil {
-		return nil
-	}
-
-	select {
-	case <-b.ch:
-		return nil
-	case <-ctx.Done():
-		return ctx.Err()
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (fc *FakeClock) newBlocker(n int) *blocker {
-	fc.l.Lock()
-	defer fc.l.Unlock()
-	// Fast path: we already have >= n waiters.
-	if len(fc.waiters) >= n {
-		return nil
-	}
-	// Set up a new blocker to wait for more waiters.
-	b := &blocker{
-		count: n,
-		ch:    make(chan struct{}),
-	}
-	fc.blockers = append(fc.blockers, b)
-	return b
-}
+func (fc *FakeClock) newBlocker(n int) *blocker { _ = "STUB: not implemented"; return nil }
+
+// Fast path: we already have >= n waiters.
+
+// Set up a new blocker to wait for more waiters.
 
 // stop stops an expirer, returning true if the expirer was stopped.
-func (fc *FakeClock) stop(e expirer) bool {
-	fc.l.Lock()
-	defer fc.l.Unlock()
-	return fc.stopExpirer(e)
-}
+func (fc *FakeClock) stop(e expirer) bool { _ = "STUB: not implemented"; return false }
 
 // stopExpirer stops an expirer, returning true if the expirer was stopped.
 //
 // The caller must hold fc.l.
-func (fc *FakeClock) stopExpirer(e expirer) bool {
-	idx := slices.Index(fc.waiters, e)
-	if idx == -1 {
-		return false
-	}
-	// Remove element, maintaining order, setting inaccessible elements to nil so
-	// they can be garbage collected.
-	copy(fc.waiters[idx:], fc.waiters[idx+1:])
-	fc.waiters[len(fc.waiters)-1] = nil
-	fc.waiters = fc.waiters[:len(fc.waiters)-1]
-	return true
-}
+func (fc *FakeClock) stopExpirer(e expirer) bool { _ = "STUB: not implemented"; return false }
+
+// Remove element, maintaining order, setting inaccessible elements to nil so
+// they can be garbage collected.
 
 // setExpirer sets an expirer to expire at a future point in time.
 //
 // The caller must hold fc.l.
-func (fc *FakeClock) setExpirer(e expirer, d time.Duration) {
-	if d.Nanoseconds() <= 0 {
-		// Special case for timers with duration <= 0: trigger immediately, never
-		// reset.
-		//
-		// Tickers never get here, they panic if d is < 0.
-		e.expire(fc.time)
-		return
-	}
-	// Add the expirer to the set of waiters and notify any blockers.
-	e.setExpiration(fc.time.Add(d))
-	fc.waiters = append(fc.waiters, e)
-	slices.SortFunc(fc.waiters, func(a, b expirer) int {
-		return a.expiration().Compare(b.expiration())
-	})
+func (fc *FakeClock) setExpirer(e expirer, d time.Duration) { _ = "STUB: not implemented"; return }
 
-	// Notify blockers of our new waiter.
-	count := len(fc.waiters)
-	fc.blockers = slices.DeleteFunc(fc.blockers, func(b *blocker) bool {
-		if b.count <= count {
-			close(b.ch)
-			return true
-		}
-		return false
-	})
-}
+// Special case for timers with duration <= 0: trigger immediately, never
+// reset.
+//
+// Tickers never get here, they panic if d is < 0.
+
+// Add the expirer to the set of waiters and notify any blockers.
+
+// Notify blockers of our new waiter.

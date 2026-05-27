@@ -13,9 +13,7 @@ type Timer interface {
 
 type realTimer struct{ *time.Timer }
 
-func (r realTimer) Chan() <-chan time.Time {
-	return r.C
-}
+func (r realTimer) Chan() <-chan time.Time { _ = "STUB: not implemented"; return nil }
 
 type fakeTimer struct {
 	// The channel associated with the firer, used to send expiration times.
@@ -36,44 +34,22 @@ type fakeTimer struct {
 }
 
 func newFakeTimer(fc *FakeClock, afterfunc func()) *fakeTimer {
-	var ft *fakeTimer
-	ft = &fakeTimer{
-		c: make(chan time.Time, 1),
-		reset: func(d time.Duration) bool {
-			fc.l.Lock()
-			defer fc.l.Unlock()
-			// fc.l must be held across the calls to stopExpirer & setExpirer.
-			stopped := fc.stopExpirer(ft)
-			fc.setExpirer(ft, d)
-			return stopped
-		},
-		stop: func() bool { return fc.stop(ft) },
-
-		afterFunc: afterfunc,
-	}
-	return ft
-}
-
-func (f *fakeTimer) Chan() <-chan time.Time { return f.c }
-
-func (f *fakeTimer) Reset(d time.Duration) bool { return f.reset(d) }
-
-func (f *fakeTimer) Stop() bool { return f.stop() }
-
-func (f *fakeTimer) expire(now time.Time) *time.Duration {
-	if f.afterFunc != nil {
-		go f.afterFunc()
-		return nil
-	}
-
-	// Never block on expiration.
-	select {
-	case f.c <- now:
-	default:
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (f *fakeTimer) expiration() time.Time { return f.exp }
+// fc.l must be held across the calls to stopExpirer & setExpirer.
 
-func (f *fakeTimer) setExpiration(t time.Time) { f.exp = t }
+func (f *fakeTimer) Chan() <-chan time.Time { _ = "STUB: not implemented"; return nil }
+
+func (f *fakeTimer) Reset(d time.Duration) bool { _ = "STUB: not implemented"; return false }
+
+func (f *fakeTimer) Stop() bool { _ = "STUB: not implemented"; return false }
+
+func (f *fakeTimer) expire(now time.Time) *time.Duration { _ = "STUB: not implemented"; return nil }
+
+// Never block on expiration.
+
+func (f *fakeTimer) expiration() time.Time { _ = "STUB: not implemented"; return *new(time.Time) }
+
+func (f *fakeTimer) setExpiration(t time.Time) { _ = "STUB: not implemented"; return }

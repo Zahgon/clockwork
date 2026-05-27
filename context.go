@@ -3,7 +3,6 @@ package clockwork
 import (
 	"context"
 	"fmt"
-	"sync"
 	"time"
 )
 
@@ -22,17 +21,13 @@ var keyClock = contextKey("clock") // clockwork.Clock
 // should prefer passing explicit [clockwork.Clock] variables rather can passing
 // the clock via the context.
 func AddToContext(ctx context.Context, clock Clock) context.Context {
-	return context.WithValue(ctx, keyClock, clock)
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
 // FromContext extracts a clock from the context. If not present, a real clock
 // is returned.
-func FromContext(ctx context.Context) Clock {
-	if clock, ok := ctx.Value(keyClock).(Clock); ok {
-		return clock
-	}
-	return NewRealClock()
-}
+func FromContext(ctx context.Context) Clock { _ = "STUB: not implemented"; return *new(Clock) }
 
 // ErrFakeClockDeadlineExceeded is the error returned by [context.Context] when
 // the deadline passes on a context which uses a [FakeClock].
@@ -60,21 +55,16 @@ var ErrFakeClockDeadlineExceeded error = fmt.Errorf("clockwork.FakeClock: %w", c
 // way to then cancel the returned context is by calling the returned
 // context.CancelFunc.
 func WithDeadline(parent context.Context, clock Clock, t time.Time) (context.Context, context.CancelFunc) {
-	if fc, ok := clock.(*FakeClock); ok {
-		return newFakeClockContext(parent, t, fc.newTimerAtTime(t, nil).Chan())
-	}
-	return context.WithDeadline(parent, t)
+	_ = "STUB: not implemented"
+	return *new(context.Context), *new(context.CancelFunc)
 }
 
 // WithTimeout returns a context with a timeout based on a [FakeClock].
 //
 // The returned context follows the same behaviors as [WithDeadline].
 func WithTimeout(parent context.Context, clock Clock, d time.Duration) (context.Context, context.CancelFunc) {
-	if fc, ok := clock.(*FakeClock); ok {
-		t, deadline := fc.newTimer(d, nil)
-		return newFakeClockContext(parent, deadline, t.Chan())
-	}
-	return context.WithTimeout(parent, d)
+	_ = "STUB: not implemented"
+	return *new(context.Context), *new(context.CancelFunc)
 }
 
 // fakeClockContext implements context.Context, using a fake clock for its
@@ -99,39 +89,26 @@ type fakeClockContext struct {
 }
 
 func newFakeClockContext(parent context.Context, deadline time.Time, timer <-chan time.Time) (context.Context, context.CancelFunc) {
-	cancelCalled := make(chan struct{})
-	ctx := &fakeClockContext{
-		parent:       parent,
-		deadline:     deadline,
-		timerDone:    timer,
-		cancelCalled: cancelCalled,
-		ctxDone:      make(chan struct{}),
-		cancel: sync.OnceFunc(func() {
-			close(cancelCalled)
-		}),
-	}
-	ready := make(chan struct{}, 1)
-	go ctx.runCancel(ready)
-	<-ready // Wait until the cancellation goroutine is running.
-	return ctx, ctx.cancel
+	_ = "STUB: not implemented"
+	return *new(context.Context), *new(context.CancelFunc)
 }
+
+// Wait until the cancellation goroutine is running.
 
 func (c *fakeClockContext) Deadline() (time.Time, bool) {
-	return c.deadline, true
+	_ = "STUB: not implemented"
+	return *new(time.Time), false
 }
 
-func (c *fakeClockContext) Done() <-chan struct{} {
-	return c.ctxDone
-}
+func (c *fakeClockContext) Done() <-chan struct{} { _ = "STUB: not implemented"; return nil }
 
 func (c *fakeClockContext) Err() error {
-	<-c.Done() // Don't return the error before it is ready.
-	return c.err
+	_ = "STUB: not implemented"
+	// Don't return the error before it is ready.
+	return nil
 }
 
-func (c *fakeClockContext) Value(key any) any {
-	return c.parent.Value(key)
-}
+func (c *fakeClockContext) Value(key any) any { _ = "STUB: not implemented"; return *new(any) }
 
 // runCancel runs the fakeClockContext's cancel goroutine and returns the
 // fakeClockContext's cancel function.
@@ -142,28 +119,11 @@ func (c *fakeClockContext) Value(key any) any {
 //   - The returned CancelFunc is executed.
 //   - The fakeClockContext's parent context is cancelled with an error other
 //     than context.DeadlineExceeded.
-func (c *fakeClockContext) runCancel(ready chan struct{}) {
-	parentDone := c.parent.Done()
+func (c *fakeClockContext) runCancel(ready chan struct{}) { _ = "STUB: not implemented"; return }
 
-	// Close ready when done, just in case the ready signal races with other
-	// branches of our select statement below.
-	defer close(ready)
+// Close ready when done, just in case the ready signal races with other
+// branches of our select statement below.
 
-	for c.err == nil {
-		select {
-		case <-c.timerDone:
-			c.err = ErrFakeClockDeadlineExceeded
-		case <-c.cancelCalled:
-			c.err = context.Canceled
-		case <-parentDone:
-			c.err = c.parent.Err()
-
-		case ready <- struct{}{}:
-			// Signals the cancellation goroutine has begun, in an attempt to minimize
-			// race conditions related to goroutine startup time.
-			ready = nil // This case statement can only fire once.
-		}
-	}
-	close(c.ctxDone)
-	return
-}
+// Signals the cancellation goroutine has begun, in an attempt to minimize
+// race conditions related to goroutine startup time.
+// This case statement can only fire once.
